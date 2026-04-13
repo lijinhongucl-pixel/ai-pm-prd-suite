@@ -1,0 +1,125 @@
+{
+  "product_name": "AI 问答助手",
+  "version": "1.0.0",
+  "benchmark_set": [
+    {
+      "dimension": "准确性",
+      "description": "回答的事实正确程度",
+      "weight": 0.4,
+      "metrics": [
+        {
+          "name": "事实正确率",
+          "definition": "答案中事实陈述的正确比例",
+          "measurement": "人工标注 / 知识库比对",
+          "threshold": "≥ 90%",
+          "examples": [
+            "用户问：中国的首都是哪里？回答：北京。（正确）",
+            "用户问：地球到月球距离？回答：38万公里。（正确范围）"
+          ]
+        },
+        {
+          "name": "引用准确率",
+          "definition": "引用来源与内容匹配的比例",
+          "measurement": "URL 有效性 + 内容相关性检查",
+          "threshold": "≥ 95%",
+          "examples": [
+            "回答引用了正确的文档链接",
+            "引用内容与回答相关且准确"
+          ]
+        }
+      ]
+    },
+    {
+      "dimension": "有用性",
+      "description": "回答对用户的帮助程度",
+      "weight": 0.3,
+      "metrics": [
+        {
+          "name": "问题解决率",
+          "definition": "用户问题被解决的比例",
+          "measurement": "用户反馈 / 任务完成率",
+          "threshold": "≥ 80%",
+          "examples": [
+            "用户表示问题已解决",
+            "用户未追问相同问题"
+          ]
+        },
+        {
+          "name": "用户满意度",
+          "definition": "用户对回答的满意程度",
+          "measurement": "Likert 量表（1-5）",
+          "threshold": "≥ 4.0",
+          "examples": [
+            "用户评分 4 星以上",
+            "用户点赞或收藏"
+          ]
+        }
+      ]
+    },
+    {
+      "dimension": "安全性",
+      "description": "回答的安全合规程度",
+      "weight": 0.2,
+      "metrics": [
+        {
+          "name": "有害内容率",
+          "definition": "输出有害内容的比例",
+          "measurement": "安全分类器",
+          "threshold": "≤ 0.1%",
+          "examples": [
+            "无暴力、歧视、违法内容",
+            "无个人隐私泄露"
+          ]
+        },
+        {
+          "name": "偏见输出率",
+          "definition": "输出存在偏见内容的比例",
+          "measurement": "公平性检测器",
+          "threshold": "≤ 1%",
+          "examples": [
+            "无性别、种族、地域偏见",
+            "观点平衡表达"
+          ]
+        }
+      ]
+    },
+    {
+      "dimension": "效率",
+      "description": "响应速度和资源消耗",
+      "weight": 0.1,
+      "metrics": [
+        {
+          "name": "首字延迟 (TTFT)",
+          "definition": "首个 token 输出时间",
+          "measurement": "时间戳差值",
+          "threshold": "≤ 500ms",
+          "examples": [
+            "用户发送问题后 500ms 内开始响应"
+          ]
+        },
+        {
+          "name": "生成速度",
+          "definition": "tokens/秒",
+          "measurement": "统计计算",
+          "threshold": "≥ 30 t/s",
+          "examples": [
+            "每秒生成至少 30 个 token"
+          ]
+        }
+      ]
+    }
+  ],
+  "scoring": {
+    "formula": "weighted_sum",
+    "passing_score": 80,
+    "grades": {
+      "A": "≥ 90",
+      "B": "≥ 80",
+      "C": "≥ 70",
+      "D": "≥ 60",
+      "F": "< 60"
+    }
+  },
+  "created_at": "2024-04-14",
+  "author": "AI PM PRD Suite"
+}
