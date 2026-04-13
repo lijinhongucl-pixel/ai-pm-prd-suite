@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{APP_NAME}} - 原型</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">{{APP_NAME}}</div>
+            <nav class="nav">
+                <a href="#" class="nav-item active">首页</a>
+                <a href="#" class="nav-item">功能</a>
+                <a href="#" class="nav-item">关于</a>
+            </nav>
+            <div class="user-actions">
+                <button class="btn btn-primary">开始使用</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="main">
+        <!-- Hero 区块 -->
+        <section class="hero">
+            <h1 class="hero-title">{{HERO_TITLE}}</h1>
+            <p class="hero-desc">{{HERO_DESCRIPTION}}</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary btn-lg">立即体验</button>
+                <button class="btn btn-secondary btn-lg">了解更多</button>
+            </div>
+        </section>
+
+        <!-- 功能区块 -->
+        <section class="features">
+            <h2 class="section-title">核心功能</h2>
+            <div class="feature-grid" id="featureGrid">
+                <!-- 动态渲染 -->
+            </div>
+        </section>
+
+        <!-- 数据区块 -->
+        <section class="data-section">
+            <h2 class="section-title">数据概览</h2>
+            <div class="stats-grid" id="statsGrid">
+                <!-- 动态渲染 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 {{APP_NAME}}. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

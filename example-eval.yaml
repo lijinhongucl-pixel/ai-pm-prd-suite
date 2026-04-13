@@ -1,0 +1,185 @@
+# Eval Framework Configuration
+# AI 问答助手 - Eval 飞轮配置
+
+product: "AI 问答助手"
+version: "1.0.0"
+
+# ===========================================
+# Observe - 观察阶段
+# ===========================================
+observe:
+  # 事件采集配置
+  events:
+    - name: "user_query"
+      description: "用户查询事件"
+      fields:
+        - query: string          # 用户输入
+        - timestamp: datetime    # 时间戳
+        - user_id: string        # 用户标识
+        - session_id: string     # 会话标识
+        - context: object        # 上下文信息
+      sample_rate: 1.0           # 采样率 100%
+      
+    - name: "model_response"
+      description: "模型响应事件"
+      fields:
+        - response: string       # 模型输出
+        - latency_ms: int        # 响应延迟
+        - tokens_input: int      # 输入 token 数
+        - tokens_output: int     # 输出 token 数
+        - model_version: string  # 模型版本
+      sample_rate: 1.0
+      
+    - name: "user_feedback"
+      description: "用户反馈事件"
+      fields:
+        - rating: int            # 评分 1-5
+        - action: string         # like/dislike/none
+        - comment: string        # 文字评论
+        - timestamp: datetime    # 时间戳
+      sample_rate: 1.0
+      
+  # 存储配置
+  storage:
+    type: "clickhouse"
+    retention: "90d"
+    partition: "daily"
+
+# ===========================================
+# Analyze - 分析阶段
+# ===========================================
+analyze:
+  # 信号提取配置
+  signals:
+    - name: "response_quality"
+      description: "响应质量评分"
+      source: "user_feedback.rating"
+      aggregation: "avg"
+      window: "7d"
+      
+    - name: "latency_p95"
+      description: "P95 延迟"
+      source: "model_response.latency_ms"
+      aggregation: "p95"
+      window: "1d"
+      
+    - name: "follow_up_rate"
+      description: "追问率"
+      source: "session.query_count"
+      aggregation: "avg"
+      filter: "query_count > 1"
+      window: "7d"
+      
+    - name: "helpfulness_score"
+      description: "有用性评分"
+      source: "user_feedback.action"
+      aggregation: "custom"
+      formula: "(count(like) - count(dislike)) / count(total)"
+      window: "7d"
+      
+  # 分析调度
+  schedule: "every_1h"
+  
+  # 可视化
+  dashboard: "grafana://eval-dashboard"
+
+# ===========================================
+# Evaluate - 评估阶段
+# ===========================================
+evaluate:
+  # 评估规则
+  rules:
+    - name: "quality_gate"
+      description: "响应质量必须达标"
+      condition: "response_quality >= 4.0"
+      severity: "critical"
+      action:
+        pass: "continue"
+        fail: "alert + trigger_investigation"
+        
+    - name: "latency_gate"
+      description: "P95 延迟必须在阈值内"
+      condition: "latency_p95 <= 2000"
+      severity: "warning"
+      action:
+        pass: "continue"
+        fail: "alert"
+        
+    - name: "helpfulness_gate"
+      description: "有用性评分必须达标"
+      condition: "helpfulness_score >= 0.7"
+      severity: "warning"
+      action:
+        pass: "continue"
+        fail: "alert"
+        
+    - name: "safety_gate"
+      description: "有害内容率必须极低"
+      condition: "harmful_rate <= 0.001"
+      severity: "critical"
+      action:
+        pass: "continue"
+        fail: "immediate_rollback"
+  
+  # 告警配置
+  alerts:
+    channels:
+      - "#ai-quality-alerts"
+      - "#oncall"
+    escalation:
+      - after: "15m"
+        escalate_to: "team_lead"
+      - after: "1h"
+        escalate_to: "engineering_manager"
+
+# ===========================================
+# Improve - 改进阶段
+# ===========================================
+improve:
+  # 改进触发器
+  triggers:
+    - condition: "quality_gate.failed && trend == 'declining'"
+      actions:
+        - type: "trigger_retraining"
+          params:
+            dataset: "last_30d_feedback"
+            strategy: "rlhf"
+            priority: "high"
+            
+    - condition: "latency_gate.failed"
+      actions:
+        - type: "scale_infrastructure"
+          params:
+            scale_factor: 1.5
+            duration: "2h"
+            
+    - condition: "safety_gate.failed"
+      actions:
+        - type: "immediate_rollback"
+          params:
+            target_version: "previous_stable"
+        - type: "notify_oncall"
+          params:
+            channel: "#ai-safety-alerts"
+            priority: "critical"
+            
+  # 自动化级别
+  automation_level: "semi_auto"  # full_auto / semi_auto / manual
+  
+  # 人工审批
+  approval_required: true
+  approvers:
+    - "team_lead"
+    - "product_manager"
+
+# ===========================================
+# 元数据
+# ===========================================
+metadata:
+  created_at: "2024-04-14"
+  author: "AI PM PRD Suite"
+  environment: "production"
+  tags:
+    - "qa-assistant"
+    - "production"
+    - "eval"
